@@ -10,16 +10,18 @@ import java.io.File;
 import java.io.IOException;
 //https://github.com/centic9/jgit-cookbook
 public class GitApi {
-    public static void repoOperations() throws IOException {
+    public static void prepare(String revisionSHA) throws IOException {
         // Открыть существующий репозиторий
         Repository existingRepo = new FileRepositoryBuilder()
                 .setGitDir(new File("my_repo/.git"))
                 .build();
         Git git = new Git(existingRepo);
         try {
-            git.reset().setMode(ResetCommand.ResetType.HARD).setRef("sdfsdfsdf").call();
+            git.reset().setMode(ResetCommand.ResetType.HARD).setRef(revisionSHA).call();
         } catch (GitAPIException e) {
             e.printStackTrace();
+        } finally {
+            git.close();
         }
     }
 
