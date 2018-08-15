@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en" ng-app="checker" ng-controller="main-controller">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/main.css">
+
+    <title>Git Revisions Diffs</title>
+</head>
+<body>
+<h3 class="text-center text-white pt-5">Git Revisions Diffs</h3>
+<div id="login">
+    <div class="container">
+        <div id="login-row" class="row justify-content-left align-items-center">
+            <div id="login-column" class="col-md-6">
+                <div id="login-box" class="col-md-12">
+                    <form id="login-form" class="form" ng-submit="submitForm()" method="get" >
+                        <h4 class="text-center text-info">Необходимо заполнить форму</h4>
+                        <div class="form-group">
+                            <label for="branchName" class="text-info">Ветка в Git:</label><br>
+                            <select name="branchName" class="form-control" title="All continents" id="branchName" ng-model="branchName" required>
+                                <option value="2.0.7-release">2.0.7-release</option>
+                                <option value="2.0.7-develop">2.0.7-develop</option>
+                                <option value="2.0.7-hotfix">2.0.7-hotfix</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="newRevision" class="text-info">Новая ревизия:</label><br>
+                            <input type="text" name="newRevision" id="newRevision" class="form-control" ng-model="newRevision" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="oldRevision" class="text-info">Старая ревизия:</label><br>
+                            <input type="text" name="oldRevision" id="oldRevision" class="form-control" ng-model="oldRevision" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" name="submit" class="btn btn-info float-right" value="Сравнить" id="submit">
+                        </div>
+                        <div id="result-div">
+                            <label for="result">Результат:</label>
+                            <textarea class="form-control" rows="5" id="result" ng-bind="resultText" disabled = disabled></textarea>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+            <div id="info-column" class="col-md-6">
+                <div id="info-box" class="col-md-12">
+                    <h5 class="text-center text-white pt-1">1. Получить значение ревизии можно в IntelliJ IDEA.</h5>
+                    <img src="img/revisions.png">
+                    <h5 class="text-center text-white pt-1">2. Все поля должны быть корректно заполнены.</h5>
+                    <h5 class="text-center text-white pt-1">3. После нажатия кнопки "Сравнить", через время!!! отобразиться результат</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular.min.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>

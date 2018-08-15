@@ -1,6 +1,7 @@
 package repo;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,49 +10,63 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.*;
 
-class Compare {
+public class Compare {
+    public static final Logger logger = Logger.getLogger(Compare.class);
     //This can be any folder locations which you want to compare
-    private static List<File> newRepos = new ArrayList<File>();
-    static File dir1 = new File("D:\\git_tests\\old\\box-legacy");
-    static File dir2 = new File("D:\\git_tests\\new\\box-legacy");
-    public static void main(String ...args)
+    private static List<File> newRepos = new ArrayList<>();
+    public static StringBuilder diffs = new StringBuilder();
+    private static File dir1 = new File("D:\\git_tests\\old\\box-legacy");
+    private static File dir2 = new File("D:\\git_tests\\new\\box-legacy");
+
+    public String getDiffs(){
+        return diffs.toString().replaceAll("pom.xml\t\tdifferent\r\n", "");
+    }
+
+    public void clearDiffs(){
+        diffs.setLength(0);
+    }
+
+    public void doCompare()
     {
-        Compare compare = new Compare();
-        copyRepos(dir1, dir2);
+        copyRepos();
         try
         {
-            compare.getDiff(newRepos.get(1),newRepos.get(2));
+            getDiff(newRepos.get(0),newRepos.get(1));
         }
         catch(IOException ie)
         {
-            ie.printStackTrace();
+            logger.error(ie.getMessage());
         }
         deleteNewRepos(newRepos);
     }
 
-    private static void deleteNewRepos(List<File> newRepos) {
+    public void deleteNewRepos(List<File> newRepos) {
         for (File repo : newRepos){
             try {
                 FileUtils.deleteDirectory(repo);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage());
             }
         }
+        newRepos.clear();
     }
 
-    private static void copyRepos(File dir1, File dir2) {
-        String destination = "D:\\git_tests\\new_repos1";
-        String destination2 = "D:\\git_tests\\new_repos1";
-        File destDir = new File(destination);
-        File destDir2 = new File(destination2);
+    public void copyRepos() {
+        File destDir = new File("D:\\git_tests\\old_repo");
+        File destDir2 = new File("D:\\git_tests\\new_repo");
 
         try {
             FileUtils.copyDirectory(dir1, destDir);
+            File destDirGit = new File("D:\\git_tests\\old_repo\\.git");
+            FileUtils.deleteDirectory(destDirGit);
             newRepos.add(destDir);
+
             FileUtils.copyDirectory(dir2, destDir2);
+            File destDir2Git = new File("D:\\git_tests\\new_repo\\.git");
+            FileUtils.deleteDirectory(destDir2Git);
             newRepos.add(destDir2);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
     }
 
@@ -64,26 +79,24 @@ class Compare {
         HashMap<String, File> map1;
         if(fileList1.length < fileList2.length)
         {
-            map1 = new HashMap<String, File>();
-            for(int i=0;i<fileList1.length;i++)
-            {
-                map1.put(fileList1[i].getName(),fileList1[i]);
+            map1 = new HashMap<>();
+            for (File aFileList1 : fileList1) {
+                map1.put(aFileList1.getName(), aFileList1);
             }
 
             compareNow(fileList2, map1);
         }
         else
         {
-            map1 = new HashMap<String, File>();
-            for(int i=0;i<fileList2.length;i++)
-            {
-                map1.put(fileList2[i].getName(),fileList2[i]);
+            map1 = new HashMap<>();
+            for (File aFileList2 : fileList2) {
+                map1.put(aFileList2.getName(), aFileList2);
             }
             compareNow(fileList1, map1);
         }
     }
 
-    public void compareNow(File[] fileArr, HashMap<String, File> map) throws IOException
+    public void compareNow(File[] fileArr, Map<String, File> map) throws IOException
     {
         for (File aFileArr : fileArr) {
             String fName = aFileArr.getName();
@@ -96,14 +109,14 @@ class Compare {
                     String cSum1 = checksum(aFileArr);
                     String cSum2 = checksum(fComp);
                     if (!cSum1.equals(cSum2)) {
-                        System.out.println(aFileArr.getAbsolutePath() + "\t\t" + "different");
+                        diffs.append(aFileArr.getName()).append("\t\t").append("different").append("\r\n");
                     }
                 }
             } else {
                 if (aFileArr.isDirectory()) {
                     traverseDirectory(aFileArr);
                 } else {
-                    System.out.println(aFileArr.getName() + "\t\t" + "only in " + aFileArr.getParent());
+                    diffs.append(aFileArr.getName()).append("\t\t").append("only in ").append(aFileArr.getParent()).append("\r\n");
                 }
             }
         }
@@ -114,7 +127,7 @@ class Compare {
             if (fileFrmMap.isDirectory()) {
                 traverseDirectory(fileFrmMap);
             } else {
-                System.out.println(fileFrmMap.getName() + "\t\t" + "only in " + fileFrmMap.getParent());
+                diffs.append(fileFrmMap.getName()).append("\t\t").append("only in ").append(fileFrmMap.getParent()).append("\r\n");
             }
         }
     }
@@ -122,15 +135,11 @@ class Compare {
     public void traverseDirectory(File dir)
     {
         File[] list = dir.listFiles();
-        for(int k=0;k<list.length;k++)
-        {
-            if(list[k].isDirectory())
-            {
-                traverseDirectory(list[k]);
-            }
-            else
-            {
-                System.out.println(list[k].getName() +"\t\t"+"only in "+ list[k].getParent());
+        for (File aList : list) {
+            if (aList.isDirectory()) {
+                traverseDirectory(aList);
+            } else {
+                diffs.append(aList.getName()).append("\t\t").append("only in ").append(aList.getParent()).append("\r\n");
             }
         }
     }
@@ -159,15 +168,12 @@ class Compare {
             }
             return strDigest.toString();
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             return null;
-        }
-        finally {
+        } finally {
             if (fin != null){
                 fin.close();
             }
-
         }
     }
 }
